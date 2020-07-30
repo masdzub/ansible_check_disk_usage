@@ -1,0 +1,14 @@
+# -*- mode: yaml-*-
+# example hosts
+
+[server:children]
+server_sg
+server_us
+
+[server_sg]
+venus.masdzub.com
+jasa.manageserver.id
+
+[server_us]
+nganu.masdzub.com
+mars.manageserver.id

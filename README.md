@@ -1,2 +1,9 @@
-# ansible_check_disk_usage
-Mass check disk usage using df -h
+# Check Disk Usage using Ansible
+
+## How To Use
+1. Create your hosts
+2. Edit variable want to use in `check_disk.yml` file
+3. Run ansible playbook
+```
+$ ansible-playbook check_disk.yml -i host
+``` 

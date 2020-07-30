@@ -1,5 +1,5 @@
 ---
-- hosts: cpanel
+- hosts: all
   vars:
         ansible_ssh_user: 'remote_user'
         ansible_port: 'remote_port'
