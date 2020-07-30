@@ -1,0 +1,35 @@
+---
+- hosts: cpanel
+  vars:
+        ansible_ssh_user: 'root'
+        ansible_port: '64000'
+        ansible_ssh_private_key_file: ~/.ssh/id_rsa_DN
+        ansible_sudo_pass: 'Masih Yang Lama'  
+  tasks:
+   - shell: df -h / | tail -n 1 | awk {'print $5 '}  | sed 's/%//g'
+     register: test
+
+   - shell: rm -rf disk.txt; touch disk.txt
+     delegate_to: localhost
+
+   - shell: echo "{{ inventory_hostname }}"
+     register: op
+
+   - debug:
+       msg:
+         - "{{test.stdout}}"
+         - "{{ op.stdout }}"
+
+   - name: add lines
+     lineinfile:
+       dest: disk.txt
+       line: "/ HAS REACHED {{ test.stdout }} % ON {{ op.stdout }}, DICEK NDES !!!"
+       state: present
+     delegate_to: 127.0.0.1
+     register: msgtxt
+     with_items:
+       - "{{ test.stdout }}"
+       - "{{ op.stdout }}"
+     when: test.stdout|int > 5
+   - local_action: copy content= "{{ msgtxt.results }}" dest=disk2.txt
+
