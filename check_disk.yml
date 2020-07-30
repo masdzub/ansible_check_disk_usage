@@ -5,31 +5,34 @@
         ansible_port: 'remote_port'
         ansible_ssh_private_key_file: ~/.ssh/id_rsa_location
         ansible_sudo_pass: 'Your fucking local password'
+        mountpoint: "/"  #mountpoint disk want to check
   tasks:
-   - shell: df -h / | tail -n 1 | awk {'print $5 '}  | sed 's/%//g'
-     register: test
+   - name: Checking Disk on your Server
+     shell: df -h "{{mountpoint}}" | tail -n 1 | awk {'print $5 '}  | sed 's/%//g'
+     register: disk
 
-   - shell: rm -rf disk.txt; touch disk.txt
+   - name: Create file log and Remove file log if an exist
+     shell : rm -rf disk_usage.txt; touch disk_usage.txt
      delegate_to: localhost
 
-   - shell: echo "{{ inventory_hostname }}"
-     register: op
+   - name: Server List
+     shell: echo "{{ inventory_hostname }}"
+     register: server
 
-   - debug:
+   - name: Show debugging on your fucking terminal
+     debug:
        msg:
-         - "{{test.stdout}}"
-         - "{{ op.stdout }}"
+         - "{{ disk.stdout }}"
+         - "{{ server.stdout }}"
 
-   - name: add lines
+   - name: Adding record disk usage to list on file  
      lineinfile:
-       dest: disk.txt
-       line: "/ HAS REACHED {{ test.stdout }} % ON {{ op.stdout }}, DICEK NDES !!!"
+       dest: disk_usage.txt
+       line: "{{ mountpoint }} HAS REACHED {{ disk.stdout }} % ON {{ server.stdout }}, PLEASE CHECK !!!"
        state: present
      delegate_to: 127.0.0.1
      register: msgtxt
      with_items:
-       - "{{ test.stdout }}"
-       - "{{ op.stdout }}"
-     when: test.stdout|int > 5
-   - local_action: copy content= "{{ msgtxt.results }}" dest=disk2.txt
-
+       - "{{ disk.stdout }}"
+       - "{{ server.stdout }}"
+     when: disk.stdout|int > 5 #minimum disk usage want add to list

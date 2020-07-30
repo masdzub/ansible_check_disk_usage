@@ -8,7 +8,7 @@
 $ ansible-playbook check_disk.yml -i host
 ```
 
-4. Check debug log at disk.txt
+4. Check debug log at disk_usage.txt
 ```
-$ cat disk.txt
+$ cat disk_usage.txt
 ``` 
