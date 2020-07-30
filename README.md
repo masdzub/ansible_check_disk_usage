@@ -5,7 +5,7 @@
 2. Edit variable want to use in `check_disk.yml` file
 3. Run ansible playbook
 ```
-$ ansible-playbook check_disk.yml -i host
+$ ansible-playbook check_disk.yml -i hosts
 ```
 
 4. Check debug log at disk_usage.txt
