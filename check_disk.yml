@@ -6,6 +6,7 @@
         ansible_ssh_private_key_file: ~/.ssh/id_rsa_location
         ansible_sudo_pass: 'Your fucking local password'
         mountpoint: "/"  #mountpoint disk want to check
+        limit_minimum: "90"
   tasks:
    - name: Checking Disk on your Server
      shell: df -h "{{mountpoint}}" | tail -n 1 | awk {'print $5 '}  | sed 's/%//g'
@@ -35,4 +36,4 @@
      with_items:
        - "{{ disk.stdout }}"
        - "{{ server.stdout }}"
-     when: disk.stdout|int > 5 #minimum disk usage want add to list
+     when: disk.stdout >= limit_minimum #minimum disk usage want add to list
