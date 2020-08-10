@@ -4,9 +4,12 @@
         ansible_ssh_user: 'remote_user'
         ansible_port: 'remote_port'
         ansible_ssh_private_key_file: ~/.ssh/id_rsa_location
-        #ansible_sudo_pass: 'Your fucking local password' #enable please if your ansible.cfg there is a configuration `become = yes`
         mountpoint: "/"  #mountpoint disk want to check
         limit_minimum: "90"
+
+        #ansible_sudo_pass: 'Your fucking local password' #enable please if your ansible.cfg there is a configuration `become = yes`
+
+
   tasks:
    - name: Checking Disk on your Server
      shell: df -h "{{mountpoint}}" | tail -n 1 | awk {'print $5 '}  | sed 's/%//g'

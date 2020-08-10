@@ -1,0 +1,39 @@
+---
+- hosts: all
+  vars:
+        ansible_ssh_user: 'user'
+        ansible_port: 'port'
+        ansible_ssh_private_key_file: yourID_rsa
+        mountpoint: "/"  #mountpoint disk want to check
+        limit_max: "1"
+  tasks:
+   - name: Checking Disk on your Server
+     shell: df -hBG "{{mountpoint}}" | tail -n 1 | awk {'print $4 '}  | sed 's/G//g'
+     register: disk
+
+   - name: Create file log and Remove file log if an exist
+     shell : rm -rf avail_disk.txt; touch avail_disk.txt
+     delegate_to: localhost
+
+   - name: Server List
+     shell: echo "{{ inventory_hostname }}"
+     register: server
+
+   - name: Show debugging on your fucking terminal
+     debug:
+       msg:
+         - "{{ disk.stdout }}"
+         - "{{ server.stdout }}"
+
+   - name: Adding record disk usage to list on file
+     lineinfile:
+       dest: avail_disk.txt
+       line: "{{ mountpoint }} still {{ disk.stdout }} GB ON {{ server.stdout }} :)"
+       state: present
+     delegate_to: 127.0.0.1
+     register: msgtxt
+     with_items:
+       - "{{ disk.stdout }}"
+       - "{{ server.stdout }}"
+     when: disk.stdout >= limit_max #minimum disk usage want add to list
+
