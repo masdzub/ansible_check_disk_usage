@@ -11,6 +11,10 @@
      shell: df -hBG "{{mountpoint}}" | tail -n 1 | awk {'print $4 '}  | sed 's/G//g'
      register: disk
 
+  - name: Checking Disk on your Server
+     shell: df -h "{{mountpoint}}" | tail -n 1 | awk {'print $5 '}  | sed 's/%//g'
+     register: use
+
    - name: Create file log and Remove file log if an exist
      shell : rm -rf avail_disk.txt; touch avail_disk.txt
      delegate_to: localhost
@@ -23,17 +27,19 @@
      debug:
        msg:
          - "{{ disk.stdout }}"
+         - "{{ use.stdout }}"
          - "{{ server.stdout }}"
 
    - name: Adding record disk usage to list on file
      lineinfile:
        dest: avail_disk.txt
-       line: "{{ mountpoint }} still {{ disk.stdout }} GB ON {{ server.stdout }} :)"
+       line: "{{ mountpoint }} reaches {{ use.stdout }} %, remaining disk is {{ disk.stdout }} GB :)"
        state: present
      delegate_to: 127.0.0.1
      register: msgtxt
      with_items:
        - "{{ disk.stdout }}"
        - "{{ server.stdout }}"
+       - "{{ use.stdout }}"
      when: disk.stdout >= limit_max #minimum disk usage want add to list
 
