@@ -6,12 +6,16 @@
         ansible_ssh_private_key_file: yourID_rsa
         mountpoint: "/"  #mountpoint disk want to check
         limit_max: "1"
+  tags:
+    - configuration
+  gather_facts: no
+  
   tasks:
    - name: Checking Disk on your Server
      shell: df -hBG "{{mountpoint}}" | tail -n 1 | awk {'print $4 '}  | sed 's/G//g'
      register: disk
 
-  - name: Checking Disk on your Server
+   - name: Checking Disk on your Server
      shell: df -h "{{mountpoint}}" | tail -n 1 | awk {'print $5 '}  | sed 's/%//g'
      register: use
 
@@ -33,7 +37,7 @@
    - name: Adding record disk usage to list on file
      lineinfile:
        dest: avail_disk.txt
-       line: "{{ mountpoint }} reaches {{ use.stdout }} %, remaining disk is {{ disk.stdout }} GB :)"
+       line: "{{ mountpoint }} ON {{ server.stdout }} reaches {{ use.stdout }} %, remaining disk is {{ disk.stdout }} GB :)"
        state: present
      delegate_to: 127.0.0.1
      register: msgtxt
