@@ -37,7 +37,7 @@
    - name: Adding record disk usage to list on file
      lineinfile:
       dest: avail_disk.txt
-      line: "{{ mountpoint }} has reaches {{ use.stdout }} %, remaining disk is {{ disk.stdout }} GB ON {{ server.stdout }}, CHECK!!!"
+      line: "{{ mountpoint }} has reaches {{ use.stdout }}%, remaining disk : {{ disk.stdout }}GB ON {{ server.stdout }} !"
       state: present
      delegate_to: 127.0.0.1
      register: msgtxt
@@ -45,5 +45,5 @@
        - "{{ disk.stdout }}"
        - "{{ server.stdout }}"
        - "{{ use.stdout }}"
-     when: disk.stdout >= limit_max #minimum disk usage want add to list
+     when: use.stdout >= limit_max #minimum % disk usage want add to list
 
