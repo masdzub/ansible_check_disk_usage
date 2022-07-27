@@ -1,9 +1,16 @@
 ---
-- hosts: all
+- hosts: localhost
+  gather_facts: False
+
+  tasks: 
+  - name: Create file log and Remove file log if an exist
+    shell : rm -rf avail_disk.txt; touch avail_disk.txt
+
+- hosts: cpanel_id
   vars:
-        ansible_ssh_user: 'user'
-        ansible_port: 'port'
-        ansible_ssh_private_key_file: yourID_rsa
+#        ansible_ssh_user: 'user'
+#        ansible_port: 'port'
+#        ansible_ssh_private_key_file: yourID_rsa
         mountpoint: "/"  #mountpoint disk want to check
         limit_max: "1"
   tags:
@@ -19,25 +26,22 @@
      shell: df -h "{{mountpoint}}" | tail -n 1 | awk {'print $5 '}  | sed 's/%//g'
      register: use
 
-   - name: Create file log and Remove file log if an exist
-     shell : rm -rf avail_disk.txt; touch avail_disk.txt
-     delegate_to: localhost
-
    - name: Server List
-     shell: echo "{{ inventory_hostname }}"
+     shell: echo "{{ inventory_hostname }}" | awk '{ print $1 }' | cut -d "." -f1
+#     shell: echo "{{ inventory_hostname }}"
      register: server
 
-   - name: Show debugging on your fucking terminal
-     debug:
-       msg:
-         - "{{ disk.stdout }}"
-         - "{{ use.stdout }}"
-         - "{{ server.stdout }}"
+#   - name: Show debugging on your fucking terminal
+#     debug:
+#       msg:
+#         - "{{ disk.stdout }}"
+#         - "{{ use.stdout }}"
+#         - "{{ server.stdout }}"
 
    - name: Adding record disk usage to list on file
      lineinfile:
       dest: avail_disk.txt
-      line: "{{ mountpoint }} has reaches {{ use.stdout }}%, remaining disk : {{ disk.stdout }}GB ON {{ server.stdout }} !"
+      line: "{{ mountpoint }} reache {{ use.stdout }}%, remaining disk : {{ disk.stdout }} GB ON {{ server.stdout }} !"
       state: present
      delegate_to: 127.0.0.1
      register: msgtxt
